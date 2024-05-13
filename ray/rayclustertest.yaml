@@ -1,0 +1,50 @@
+apiVersion: ray.io/v1alpha1
+kind: RayCluster
+metadata:
+  name: rayclustertest-complete
+spec:
+  rayVersion: "2.9.3"
+  enableInTreeAutoscaling: false
+  headGroupSpec:
+    serviceType: ClusterIP # Options are ClusterIP, NodePort, and LoadBalancer
+    rayStartParams:
+      num-cpus: "6"
+      dashboard-host: "0.0.0.0"
+    template: # Pod template
+        spec: # Pod spec
+            containers:
+            - name: ray-head
+              image: jfreixas/ray_test_01
+              resources:
+                limits:
+                  cpu: 6
+                  memory: 10Gi
+                requests:
+                  cpu: 6
+                  memory: 10Gi
+              # Keep this preStop hook in each Ray container config.
+              lifecycle:
+                preStop:
+                  exec:
+                    command: ["/bin/sh","-c","ray stop"]
+
+  workerGroupSpecs:
+    - groupName: default-worker-group
+      replicas: 4  # Number of workers
+      minReplicas: 1
+      maxReplicas: 4
+      rayStartParams:
+        block: "true"
+      template:
+        spec:
+          containers:
+            - name: ray-worker
+              image: jfreixas/ray_test_01
+              command: ["ray", "start", "--address", "$(RAY_HEAD_SERVICE_HOST):6379"]
+              resources:
+                requests:
+                  cpu: "6"  # CPUs per worker
+                  memory: "10Gi"
+                limits:
+                  cpu: "6"
+                  memory: "10Gi"
