@@ -1,1 +1,0 @@
-Job ID,Dataset,Preserve order,Parallelism,Num cpus,Batch size map_batches(),Concurrency,Dataset size (bytes),Num records dataset,Num blocks dataset,Total time,Throughput (img/sec),Total time w/o metadata fetching,Throughput w/o metadata fetching (img/sec)
